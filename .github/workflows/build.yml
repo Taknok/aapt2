@@ -38,12 +38,6 @@ jobs:
         env:
           NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64
 
-      - name: Attest build provenance
-        uses: actions/attest-build-provenance@v1
-        with:
-          subject-name: dist-${{ matrix.target_arch }}
-          subject-path: dist
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
