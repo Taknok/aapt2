@@ -23,7 +23,7 @@ file(GLOB_RECURSE PROTO_FILES ${AAPT2_PROTO_DIR}/*.proto)
 
 foreach(proto ${PROTO_FILES})
     get_filename_component(FIL_WE ${proto} NAME_WE)
-    
+
     if(DEFINED PROTOC_PATH)
         # execute the protoc command to generate the proto targets for host arch
         execute_process(
@@ -34,17 +34,17 @@ foreach(proto ${PROTO_FILES})
             RESULT_VARIABLE RESULT
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         )
-    
+
         # check command result
         if(RESULT EQUAL 0)
             message(STATUS "generate cpp file ${TARGET_CPP_FILE}")
             message(STATUS "generate head file ${TARGET_HEAD_FILE}")
         endif()
     endif()
-    
+
     set(TARGET_CPP_FILE "${AAPT2_PROTO_DIR}/${FIL_WE}.pb.cc")
     set(TARGET_HEAD_FILE "${AAPT2_PROTO_DIR}/${FIL_WE}.pb.h")
-    
+
     if(EXISTS ${TARGET_CPP_FILE} AND EXISTS ${TARGET_HEAD_FILE})
         list(APPEND AAPT2_PROTO_SRC ${TARGET_CPP_FILE})
         list(APPEND AAPT2_PROTO_HDRS ${TARGET_HEAD_FILE})
@@ -55,6 +55,8 @@ if(DEFINED PROTOC_PATH)
     set_source_files_properties(${AAPT2_PROTO_SRC} PROPERTIES GENERATED TRUE)
     set_source_files_properties(${AAPT2_PROTO_HDRS} PROPERTIES GENERATED TRUE)
 endif()
+set_source_files_properties(${AAPT2_PROTO_SRC} ${AAPT2_PROTO_HDRS}
+                            PROPERTIES GENERATED TRUE)
 # ========================= aapt2 proto ============================
 
 
@@ -73,16 +75,16 @@ set(INCLUDES
     ${SRC}/core/libsystem/include
     ${SRC}/core/libutils/include
     ${SRC}/googletest/googletest/include
-    ${SRC}/libziparchive/include 
+    ${SRC}/libziparchive/include
     ${SRC}/soong/cc/libbuildversion/include
-    ${SRC}/incremental_delivery/incfs/util/include 
+    ${SRC}/incremental_delivery/incfs/util/include
     ${SRC}/incremental_delivery/incfs/kernel-headers
     )
 
 set(COMPILE_FLAGS
     -Wno-unused-parameter
     -Wno-missing-field-initializers
-    -fno-exceptions 
+    -fno-exceptions
     -fno-rtti
     )
 
@@ -97,7 +99,7 @@ set(TOOL_SOURCE
     ${SRC}/base/tools/aapt2/cmd/Optimize.cpp
     ${SRC}/base/tools/aapt2/cmd/Util.cpp
     )
-    
+
 # build the host static library: aapt2
 add_library(libaapt2 STATIC
     ${SRC}/base/tools/aapt2/compile/IdAssigner.cpp
@@ -171,7 +173,7 @@ add_library(libaapt2 STATIC
     ${SRC}/base/tools/aapt2/Resources.proto
     ${SRC}/base/tools/aapt2/ResourceMetadata.proto
     ${SRC}/base/tools/aapt2/ResourcesInternal.proto
-    ${SRC}/base/tools/aapt2/ValueTransformer.cpp 
+    ${SRC}/base/tools/aapt2/ValueTransformer.cpp
     ${AAPT2_PROTO_SRC} ${AAPT2_PROTO_HDRS}
     )
 target_include_directories(libaapt2 PRIVATE ${INCLUDES})
@@ -193,21 +195,21 @@ add_executable(aapt2
     )
 target_include_directories(aapt2 PRIVATE ${INCLUDES})
 target_compile_options(aapt2 PRIVATE ${COMPILE_FLAGS})
-target_link_libraries(aapt2 
+target_link_libraries(aapt2
     libaapt2
-    libandroidfw 
+    libandroidfw
     libincfs
     libselinux
     libsepol
     libpackagelistparser
-    libutils 
+    libutils
     libcutils
     libziparchive
     libbase
     libbuildversion
     liblog
-    protobuf::libprotoc
-    protobuf::libprotobuf
+    libprotoc
+    libprotobuf
     expat
     crypto
     ssl

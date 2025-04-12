@@ -21,7 +21,6 @@ import time
 import shutil
 import argparse
 import subprocess
-import zipfile
 from pathlib import Path
 
 def format_time(seconds):
@@ -42,60 +41,33 @@ def format_time(seconds):
     else:
         return '{}s'.format(sec)
 
-# package a directory as zip file
-def package(srcPathName, destPathName):
-    zip = zipfile.ZipFile(destPathName, 'w', zipfile.ZIP_DEFLATED)
-    for path, dirs, names in os.walk(srcPathName):
-        fpath = path.replace(srcPathName, '')
-        for filename in names:
-            zip.write(os.path.join(path, filename), os.path.join(fpath, filename))            
-    zip.close()
-
 # build finish
 def complete(args):
     # binaries output dir
     binary_dir = Path.cwd() / args.build / 'bin'
-    
+
     # ndk llvm-strip
     strip = Path(args.ndk) / 'toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip'
-    
+
     # arch maps
-    arch = {
-        'arm64-v8a' : 'aarch64', 
-        'armeabi-v7a' : 'arm', 
-        'x86_64' : 'x86_64', 
-        'x86' : 'i686'
-    }
-    
-    # the android tools list
-    build_tools = ['aapt', 'aapt2', 'aidl', 'zipalign', 'dexdump', 'split-select']
-    
-    platform_tools = [
-        'adb', 'fastboot', 'sqlite3', 'etc1tool', 'hprof-conv',
-        'e2fsdroid', 'sload_f2fs', 'mke2fs', 'make_f2fs', 'make_f2fs_casefold'
+    arch = [
+        'arm64-v8a'
+        'armeabi-v7a'
+        'x86_64'
+        'x86'
     ]
-    
-    other_tools = ['veridex']
-    
-    android_tools = {
-        binary_dir / 'build-tools' : build_tools,
-        binary_dir / 'platform-tools' : platform_tools,
-        binary_dir / 'others' : other_tools
-    }
-    
+
+    # the android tools list
+    build_tools = ['aapt', 'aapt2']
+
     # strip debug symbol for android tools
-    for (tooldir, tools) in android_tools.items():
-        if not tooldir.exists():
-            tooldir.mkdir()
-        for tool in tools:
-            if Path(binary_dir / tool).exists():
-                shutil.copy2(binary_dir / tool, tooldir)
-                os.remove(binary_dir / tool)
-                subprocess.run('{} -g {}'.format(strip, tooldir / tool), shell=True)
-    
-    # package build tools as a zip file
-    package(str(binary_dir), str(binary_dir.parent / 'android-sdk-tools-{}.zip'.format(arch[args.abi])))
-    
+    for tool in build_tools:
+        tool_path = binary_dir / tool
+        print(tool_path)
+        if tool_path.exists():
+            print("in")
+            subprocess.run('{} --strip-unneeded {}'.format(strip, tool_path), shell=True)
+
 # start building
 def build(args):
     ndk = Path(args.ndk)
@@ -111,11 +83,17 @@ def build(args):
         '-DCMAKE_ANDROID_ARCH_ABI={}'.format(args.abi),
         '-DANDROID_ABI={}'.format(args.abi),
         '-DCMAKE_SYSTEM_NAME=Android',
+        '-DANDROID_ARM_NEON=ON',
+        '-DCMAKE_BUILD_TYPE=Release',
         '-Dprotobuf_BUILD_TESTS=OFF',
         '-DABSL_PROPAGATE_CXX_STD=ON',
-        '-DANDROID_ARM_NEON=ON',
-        '-DCMAKE_BUILD_TYPE=Release']
-    
+        '-Dprotobuf_BUILD_SHARED_LIBS=OFF',
+        '-Dprotobuf_BUILD_PROTOC_BINARIES=OFF',
+        '-Dprotobuf_BUILD_LIBPROTOC=ON',
+        '-DPNG_SHARED=OFF',
+        '-DZLIB_USE_STATIC_LIBS=ON'
+    ]
+
     if args.protoc is not None:
         if not Path(args.protoc).exists():
             raise ValueError('no such file or directory: {}'.format(args.protoc))

@@ -26,7 +26,7 @@ set(INCLUDES
     ${SRC}/core/libsystem/include
     ${SRC}/logging/liblog/include
     ${SRC}/soong/cc/libbuildversion/include
-    ${SRC}/incremental_delivery/incfs/util/include 
+    ${SRC}/incremental_delivery/incfs/util/include
     ${SRC}/incremental_delivery/incfs/kernel-headers
     )
 
@@ -52,15 +52,15 @@ add_library(libaapt STATIC
     ${SRC}/base/tools/aapt/WorkQueue.cpp
     ${SRC}/base/tools/aapt/XMLNode.cpp
     ${SRC}/base/tools/aapt/ZipEntry.cpp
-    ${SRC}/base/tools/aapt/ZipFile.cpp   
+    ${SRC}/base/tools/aapt/ZipFile.cpp
     )
-target_compile_definitions(libaapt PRIVATE 
+target_compile_definitions(libaapt PRIVATE
     -DSTATIC_ANDROIDFW_FOR_TOOLS
     )
 target_include_directories(libaapt PRIVATE ${INCLUDES})
 
 add_executable(aapt ${SRC}/base/tools/aapt/Main.cpp)
-target_compile_definitions(aapt PRIVATE 
+target_compile_definitions(aapt PRIVATE
     -DSTATIC_ANDROIDFW_FOR_TOOLS
     )
 target_include_directories(aapt PRIVATE ${INCLUDES} )
@@ -87,5 +87,4 @@ target_link_libraries(aapt
     dl
     z
     )
-    
-    
+
