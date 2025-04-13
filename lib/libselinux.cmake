@@ -64,24 +64,28 @@ add_library(libselinux STATIC
     )
 
 target_compile_definitions(libselinux PRIVATE
-    -DAUDITD_LOG_TAG=1003 
-    -D_GNU_SOURCE 
-    -DHOST 
+    -DAUDITD_LOG_TAG=1003
+    -D_GNU_SOURCE
+    -DHOST
     -DUSE_PCRE2
-    -DNO_PERSISTENTLY_STORED_PATTERNS 
+    -DNO_PERSISTENTLY_STORED_PATTERNS
     -DDISABLE_SETRANS
-    -DDISABLE_BOOL 
-    -DNO_MEDIA_BACKEND 
-    -DNO_X_BACKEND 
+    -DDISABLE_BOOL
+    -DNO_MEDIA_BACKEND
+    -DNO_X_BACKEND
     -DNO_DB_BACKEND
     -DPCRE2_CODE_UNIT_WIDTH=8
     )
-    
+
+    if(ANDROID_ABI STREQUAL "x86")
+        target_compile_definitions(libselinux PRIVATE -DHAVE_STRLCPY)
+    endif()
+
 target_include_directories(libselinux PRIVATE
-    ${SRC}/selinux/libselinux/include 
+    ${SRC}/selinux/libselinux/include
     ${SRC}/selinux/libsepol/include
     ${SRC}/core/libcutils/include
-    ${SRC}/logging/liblog/include 
+    ${SRC}/logging/liblog/include
     ${SRC}/core/libpackagelistparser/include
     ${SRC}/pcre/include
     )
