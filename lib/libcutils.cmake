@@ -1,6 +1,21 @@
+#
+# Copyright © 2022 Github Lzhiyong
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 add_library(libcutils STATIC
     ${SRC}/core/libcutils/android_get_control_file.cpp
-    ${SRC}/core/libcutils/ashmem-host.cpp
     ${SRC}/core/libcutils/canned_fs_config.cpp
     ${SRC}/core/libcutils/config_utils.cpp
     ${SRC}/core/libcutils/fs.cpp
@@ -20,11 +35,18 @@ add_library(libcutils STATIC
     ${SRC}/core/libcutils/sockets.cpp
     ${SRC}/core/libcutils/str_parms.cpp
     ${SRC}/core/libcutils/strlcpy.c
-    ${SRC}/core/libcutils/trace-host.cpp
-    ${SRC}/core/libcutils/threads.cpp
+    ${SRC}/core/libcutils/android_reboot.cpp
+    ${SRC}/core/libcutils/ashmem-dev.cpp
+    ${SRC}/core/libcutils/klog.cpp
+    ${SRC}/core/libcutils/partition_utils.cpp
+    ${SRC}/core/libcutils/qtaguid.cpp
+    ${SRC}/core/libcutils/trace-dev.cpp
+    ${SRC}/core/libcutils/uevent.cpp
     )
 
-target_compile_definitions(libcutils PRIVATE -D_GNU_SOURCE)
+target_compile_definitions(libcutils PRIVATE 
+    -D_GNU_SOURCE
+    )
 
 target_include_directories(libcutils PRIVATE
     ${SRC}/core/libutils/include
@@ -32,3 +54,4 @@ target_include_directories(libcutils PRIVATE
     ${SRC}/logging/liblog/include 
     ${SRC}/libbase/include
     )
+    

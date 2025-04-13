@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       logLevel:
-        description: 'Reason'     
+        description: 'Reason'
         required: false
         default: 'Update package'
 
@@ -24,22 +24,39 @@ jobs:
         target_arch: [x86_64, x86, arm64-v8a, armeabi-v7a]
       fail-fast: false
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           submodules: 'true'
 
-      - uses: nttld/setup-ndk@v1
+      - name: Setting up NDK
+        uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
           ndk-version: r23c
           add-to-path: false
-      - run: ./build.sh ${{ matrix.target_arch }}
+
+      - name: Getting AOSP's source code
+        run: |
+          python3 ./get_source.py --tags platform-tools-35.0.2
+
+      - name: Compiling protoc
+        run: |
+          mkdir -p src/protobuf/build
+          pushd src/protobuf/build
+          cmake -GNinja -Dprotobuf_BUILD_TESTS=OFF ..
+          ninja -j$(nproc --all)
+          popd
+        env:
+          NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64
+
+      - name: Compiling aapt2
+        run: python3 ./build.py --ndk=${{ steps.setup-ndk.outputs.ndk-path }} --abi=${{ matrix.target_arch }} --build="build/${{ matrix.target_arch }}" --protoc=/${{ github.workspace }}/src/protobuf/build/protoc --target aapt2
         env:
           NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.target_arch }}
-          path: dist
+          name: aapt2-${{ matrix.target_arch }}
+          path: ${{ github.workspace }}/build/${{ matrix.target_arch }}/bin/aapt2
