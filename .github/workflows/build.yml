@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      contents: read
       attestations: write
     strategy:
       matrix:
@@ -47,16 +48,42 @@ jobs:
           cmake -GNinja -Dprotobuf_BUILD_TESTS=OFF ..
           ninja -j$(nproc --all)
           popd
-        env:
-          NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64
 
       - name: Compiling aapt2
         run: python3 ./build.py --ndk=${{ steps.setup-ndk.outputs.ndk-path }} --abi=${{ matrix.target_arch }} --build="build/${{ matrix.target_arch }}" --protoc=/${{ github.workspace }}/src/protobuf/build/protoc --target aapt2
-        env:
-          NDK_TOOLCHAIN: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64
+
+      - name: Generating attestation of the generated aapt2
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ github.workspace }}/build/${{ matrix.target_arch }}/bin/aapt2
+        if: github.ref == 'refs/heads/main'
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: aapt2-${{ matrix.target_arch }}
           path: ${{ github.workspace }}/build/${{ matrix.target_arch }}/bin/aapt2
+
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Downloading artifact from all
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+          merge-multiple: true
+
+      - name: Creating release
+        uses: googleapis/release-please-action@v4
+        if : ${{ hashFiles('artifacts/*') != '' }}
+        id: release
+        with:
+          release-type: simple
+
+      - name: Uploading release artifact
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ steps.release.outputs.tag_name }} ./artifacts/*
