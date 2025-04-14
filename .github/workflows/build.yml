@@ -52,12 +52,6 @@ jobs:
       - name: Compiling aapt2
         run: python3 ./build.py --ndk=${{ steps.setup-ndk.outputs.ndk-path }} --abi=${{ matrix.target_arch }} --build="build/${{ matrix.target_arch }}" --protoc=/${{ github.workspace }}/src/protobuf/build/protoc --target aapt2
 
-      - name: Generating attestation of the generated aapt2
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-path: ${{ github.workspace }}/build/${{ matrix.target_arch }}/bin/aapt2
-        if: github.ref == 'refs/heads/main'
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -85,6 +79,12 @@ jobs:
         id: release
         with:
           release-type: simple
+
+      - name: Generating attestation of the generated aapt2
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ./artifacts/aapt2-*
 
       - name: Uploading release artifact
         if: ${{ steps.release.outputs.release_created }}
