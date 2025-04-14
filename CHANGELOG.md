@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Taknok/aapt2/compare/v1.0.0...v1.1.0) (2025-04-14)
+
+
+### Features
+
+* Update build.yml ([6ddd313](https://github.com/Taknok/aapt2/commit/6ddd313e10041af998d7ed838b43369ee572d117))
+
 ## 1.0.0 (2025-04-14)
 
 
