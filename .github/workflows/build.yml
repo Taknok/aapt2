@@ -16,10 +16,6 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      attestations: write
     strategy:
       matrix:
         target_arch: [x86_64, x86, arm64-v8a, armeabi-v7a]
@@ -52,13 +48,47 @@ jobs:
       - name: Compiling aapt2
         run: python3 ./build.py --ndk=${{ steps.setup-ndk.outputs.ndk-path }} --abi=${{ matrix.target_arch }} --build="build/${{ matrix.target_arch }}" --protoc=/${{ github.workspace }}/src/protobuf/build/protoc --target aapt2
 
-      - name: Generating attestation of the generated aapt2
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-path: ${{ github.workspace }}/build/${{ matrix.target_arch }}/bin/aapt2
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: aapt2-${{ matrix.target_arch }}
-          path: ${{ github.workspace }}/build/${{ matrix.target_arch }}/bin/aapt2
+          path: ${{ github.workspace }}/build/${{ matrix.target_arch }}/bin/aapt2-*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      attestations: write
+    steps:
+      - name: Downloading artifact from all
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: List
+        run: |
+          ls -la ./artifacts/
+
+      - name: Creating release
+        uses: googleapis/release-please-action@v4
+        if : ${{ hashFiles('artifacts/*') != '' }}
+        id: release
+        with:
+          release-type: simple
+
+      - name: Generating attestation of the generated aapt2
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ./artifacts/aapt2-*/aapt2-*
+
+      - name: Uploading release artifact
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload --repo ${{ github.repository }} ${{ steps.release.outputs.tag_name }} ./artifacts/aapt2-*/aapt2-*
