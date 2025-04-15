@@ -53,6 +53,7 @@ jobs:
         with:
           name: aapt2-${{ matrix.target_arch }}
           path: ${{ github.workspace }}/build/${{ matrix.target_arch }}/bin/aapt2-*
+          if-no-files-found: error
 
   release:
     needs: build
@@ -71,7 +72,7 @@ jobs:
 
       - name: List
         run: |
-          ls -la ./artifacts/aapt2-*/aapt2
+          ls -la ./artifacts/
 
       - name: Creating release
         uses: googleapis/release-please-action@v4
@@ -84,10 +85,10 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: ./artifacts/aapt2-*/aapt2
+          subject-path: ./artifacts/aapt2-*/aapt2-*
 
       - name: Uploading release artifact
         if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload --repo ${{ github.repository }} ${{ steps.release.outputs.tag_name }} ./artifacts/aapt2-*/aapt2
+        run: gh release upload --repo ${{ github.repository }} ${{ steps.release.outputs.tag_name }} ./artifacts/aapt2-*/aapt2-*
