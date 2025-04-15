@@ -70,6 +70,10 @@ jobs:
           path: ./artifacts
           merge-multiple: true
 
+      - name: List
+        run: |
+          ls -la ./artifacts
+
       - name: Creating release
         uses: googleapis/release-please-action@v4
         if : ${{ hashFiles('artifacts/*') != '' }}
