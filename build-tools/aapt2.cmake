@@ -218,3 +218,5 @@ target_link_libraries(aapt2
     c++_static
     dl
     )
+
+set_target_properties(aapt2 PROPERTIES OUTPUT_NAME "aapt2-${CMAKE_ANDROID_ARCH_ABI}")
