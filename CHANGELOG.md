@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.3](https://github.com/Taknok/aapt2/compare/v1.0.2...v1.0.3) (2025-04-15)
+
+
+### Bug Fixes
+
+* debug ([a8a25ec](https://github.com/Taknok/aapt2/commit/a8a25ec5d1b0c6870e44cbd49bad478f8150a938))
+* upload ([e6e0036](https://github.com/Taknok/aapt2/commit/e6e003663dee1839f7ab70b9725d13b84d421ab8))
+* upload ([ec44ea6](https://github.com/Taknok/aapt2/commit/ec44ea6cef9a7b61728d16d016ef7d5276ef9c1c))
+
 ## [1.0.2](https://github.com/Taknok/aapt2/compare/v1.0.1...v1.0.2) (2025-04-15)
 
 
