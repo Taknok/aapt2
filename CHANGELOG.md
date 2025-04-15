@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/Taknok/aapt2/compare/v1.0.1...v1.0.2) (2025-04-15)
+
+
+### Bug Fixes
+
+* debug ([ab1cc05](https://github.com/Taknok/aapt2/commit/ab1cc0598b85e5c20ec58a14411dde565ec1f70a))
+
 ## [1.0.1](https://github.com/Taknok/aapt2/compare/v1.0.0...v1.0.1) (2025-04-15)
 
 
