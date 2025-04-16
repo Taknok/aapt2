@@ -1,4 +1,4 @@
-This repo is created base on the work of lzhiyong at https://github.com/lzhiyong/android-sdk-tools and the modification of aapt by IBotPeaches for apktool: https://github.com/aosp-mirror/platform_frameworks_base/compare/main...iBotPeaches:platform_frameworks_base:apktool_14.0.0
+This repo is based on the work of lzhiyong at https://github.com/lzhiyong/android-sdk-tools and the modification of aapt by IBotPeaches for apktool: https://github.com/aosp-mirror/platform_frameworks_base/compare/main...iBotPeaches:platform_frameworks_base:apktool_14.0.0
 
 Building platform-tools and build-tools for Android, such as `aapt aapt2 aidl zipalign adb fastboot` ... etc.
 
